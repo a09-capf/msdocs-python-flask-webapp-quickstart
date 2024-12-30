@@ -3,3 +3,6 @@ gunicorn
 Werkzeug==2.2.2
 langchain-openai==0.2.14
 python-dotenv
+Flask-Session>=0.3.2,<0.6
+requests>=2,<3
+identity>=0.5.1,<0.6
