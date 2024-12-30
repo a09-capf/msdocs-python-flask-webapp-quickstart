@@ -68,40 +68,33 @@ def auth_response():
 def logout():
     return redirect(auth.log_out(url_for("index", _external=True)))
 
-@app.route("/call_downstream_api")
-def call_downstream_api():
-    token = auth.get_token_for_user(app_config.SCOPE)
-    if "error" in token:
-        return redirect(url_for("login"))
-    # Use access token to call downstream api
-    api_result = requests.get(
-        app_config.ENDPOINT,
-        headers={'Authorization': 'Bearer ' + token['access_token']},
-        timeout=30,
-    ).json()
-    return render_template('display.html', result=api_result)
-
-os.environ["AZURE_OPENAI_API_KEY"] = os.getenv('AZURE_OPENAI_API_KEY')
 os.environ["AZURE_OPENAI_ENDPOINT"] = os.getenv('AZURE_OPENAI_ENDPOINT')
 api_version = os.getenv('AZURE_OPENAI_API_VERSION')
 azure_deployment = os.getenv('AZURE_OPENAI_DEPLOYMENT')
 
 @app.route('/hello', methods=['POST'])
 def hello():
-   req = request.form.get('req')
+    req = request.form.get('req')
 
-   llm = AzureChatOpenAI(
-       api_version=api_version,
-       azure_deployment=azure_deployment,
-   )
-   text = llm.invoke(req).content
+    token = auth.get_token_for_user(app_config.SCOPE)
+    if "error" in token:
+        return redirect(url_for("login"))
+    # Use access token to call downstream api
 
-   if req:
-       print('Request for hello page received with req=%s' % req)
-       return render_template('hello.html', req = text)
-   else:
-       print('Request for hello page received with no name or blank name -- redirecting')
-       return redirect(url_for('index'))
+    llm = AzureChatOpenAI(
+        api_version=api_version,
+        azure_deployment=azure_deployment,
+        azure_ad_token=token['access_token'],
+    )
+    print(token['access_token'])
+    text = llm.invoke(req).content
+
+    if req:
+        print('Request for hello page received with req=%s' % req)
+        return render_template('hello.html', req = text)
+    else:
+        print('Request for hello page received with no name or blank name -- redirecting')
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
    app.run()
