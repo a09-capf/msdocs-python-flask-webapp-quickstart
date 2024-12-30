@@ -3,8 +3,8 @@ AUTHORITY= os.getenv("AUTHORITY")
 
 # Application (client) ID of app registration
 CLIENT_ID = os.getenv("CLIENT_ID")
-# Application's generated client secret: never check this into source control!
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+THUMBPRINT = os.getenv("THUMBPRINT")
+PRIVATE_KEY = os.getenv("PRIVATE_KEY")
 
 SCOPE = ["https://cognitiveservices.azure.com/.default"]
 

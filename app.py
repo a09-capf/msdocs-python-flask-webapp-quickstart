@@ -23,18 +23,15 @@ auth = identity.web.Auth(
     session=session,
     authority=app.config["AUTHORITY"],
     client_id=app.config["CLIENT_ID"],
-    client_credential=app.config["CLIENT_SECRET"],
+    client_credential={
+        "thumbprint": app.config["THUMBPRINT"],
+        "private_key": app.config["PRIVATE_KEY"],
+        },
 )
 
 @app.route('/')
 def index():
     print('Request for index page received')
-
-    if not (app.config["CLIENT_ID"] and app.config["CLIENT_SECRET"]):
-        # This check is not strictly necessary.
-        # You can remove this check from your production code.
-        return render_template('config_error.html')
-
     return render_template('index.html')
 
 @app.route('/favicon.ico')
@@ -52,8 +49,8 @@ def hello():
 
     token = auth.get_token_for_client(app_config.SCOPE)
     if "error" in token:
-        return redirect(url_for("login"))
-    # Use access token to call downstream api
+        print(token['error'])
+        return redirect(url_for("index"))
 
     llm = AzureChatOpenAI(
         api_version=api_version,
