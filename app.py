@@ -46,6 +46,7 @@ azure_deployment = os.getenv('AZURE_OPENAI_DEPLOYMENT')
 @app.route('/hello', methods=['POST'])
 def hello():
     req = request.form.get('req')
+    original_req = req  # Pc639
 
     token = auth.get_token_for_client(app_config.SCOPE)
     if "error" in token:
@@ -62,7 +63,7 @@ def hello():
 
     if req:
         print('Request for hello page received with req=%s' % req)
-        return render_template('hello.html', req = text)
+        return render_template('hello.html', req=text, original_req=original_req)  # P2b66
     else:
         print('Request for hello page received with no name or blank name -- redirecting')
         return redirect(url_for('index'))
